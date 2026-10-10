@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian &mdash; Hospital Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF8F3;
+    --panel:#FFFFFF;
+    --ink:#1E2422;
+    --ink-soft:#5B655F;
+    --teal:#10504C;
+    --teal-dark:#0B3A37;
+    --teal-tint:#E7EFEC;
+    --slate:#45606B;
+    --amber:#C98A3A;
+    --amber-tint:#F7ECDC;
+    --red:#B4453D;
+    --red-tint:#F6E7E4;
+    --green:#3F7A52;
+    --green-tint:#E7F0E7;
+    --line:#DDD6C8;
+    --line-soft:#EAE5D9;
+    --shadow: 0 1px 2px rgba(20,20,10,0.04);
+    --focus: #2E7D78;
+    color-scheme: light;
+  }
+  :root:not([data-theme="light"]) {}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#131A18;
+      --panel:#182320;
+      --ink:#EDEAE2;
+      --ink-soft:#A8AFA9;
+      --teal:#4FA69C;
+      --teal-dark:#3C8A81;
+      --teal-tint:#1D2E2A;
+      --slate:#8FA8B2;
+      --amber:#D8A55F;
+      --amber-tint:#2C2519;
+      --red:#D48279;
+      --red-tint:#2E1E1C;
+      --green:#7FBB8F;
+      --green-tint:#1B2A1D;
+      --line:#2B3532;
+      --line-soft:#212B28;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#131A18;
+    --panel:#182320;
+    --ink:#EDEAE2;
+    --ink-soft:#A8AFA9;
+    --teal:#4FA69C;
+    --teal-dark:#3C8A81;
+    --teal-tint:#1D2E2A;
+    --slate:#8FA8B2;
+    --amber:#D8A55F;
+    --amber-tint:#2C2519;
+    --red:#D48279;
+    --red-tint:#2E1E1C;
+    --green:#7FBB8F;
+    --green-tint:#1B2A1D;
+    --line:#2B3532;
+    --line-soft:#212B28;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"IBM Plex Sans", system-ui, sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:"Lora", Georgia, serif;
+    font-weight:600;
+    margin:0;
+    color:var(--ink);
+  }
+  .mono{font-family:"IBM Plex Mono", monospace;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+  ::selection{background:var(--teal-tint);}
+
+  /* ---------- App shell ---------- */
+  #app{display:flex; min-height:100vh;}
+
+  .sidebar{
+    width:230px;
+    flex-shrink:0;
+    background:var(--teal-dark);
+    color:#F1EEE6;
+    display:flex;
+    flex-direction:column;
+    padding:22px 16px;
+    position:fixed;
+    top:0; left:0; bottom:0;
+    overflow-y:auto;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:4px 6px 22px 6px;
+    border-bottom:1px solid rgba(241,238,230,0.15);
+    margin-bottom:16px;
+  }
+  .brand svg{flex-shrink:0;}
+  .brand-name{font-family:"Lora", serif; font-size:17px; font-weight:600; line-height:1.15;}
+  .brand-sub{font-size:11px; color:#B9CFC9; letter-spacing:.02em;}
+
+  .nav{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
+  .nav button{
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:#DCE8E4;
+    padding:10px 12px;
+    border-radius:6px;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    transition:background .12s ease;
+  }
+  .nav button:hover{background:rgba(241,238,230,0.08);}
+  .nav button.active{background:#F1EEE6; color:var(--teal-dark); font-weight:500;}
+  .nav button svg{flex-shrink:0; opacity:.9;}
+  .nav button.active svg{opacity:1;}
+
+  .sidebar-foot{
+    margin-top:auto;
+    padding-top:16px;
+    border-top:1px solid rgba(241,238,230,0.15);
+    font-size:12px;
+    color:#9FB8B1;
+  }
+  .sidebar-foot button{
+    background:none;border:1px solid rgba(241,238,230,0.25); color:#DCE8E4;
+    border-radius:6px; padding:6px 10px; font-size:12px; cursor:pointer; margin-top:8px;
+  }
+  .sidebar-foot button:hover{background:rgba(241,238,230,0.08);}
+
+  .main{
+    margin-left:230px;
+    flex:1;
+    padding:28px 36px 60px 36px;
+    max-width:1180px;
+  }
+
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:26px;
+    flex-wrap:wrap;
+    gap:12px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;
+  }
+  .topbar h1{font-size:26px;}
+  .topbar .date{color:var(--ink-soft); font-size:13px; font-family:"IBM Plex Mono", monospace; margin-top:4px;}
+  .topbar-actions{display:flex; gap:10px; align-items:center;}
+
+  input, select, textarea{
+    font-family:inherit;
+    font-size:14px;
+    padding:8px 10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:var(--panel);
+    color:var(--ink);
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:2px solid var(--focus);
+    outline-offset:1px;
+  }
+  .search-input{width:220px;}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--teal); color:#fff;
+    border:none; border-radius:6px;
+    padding:9px 14px; font-size:14px; font-weight:500;
+    cursor:pointer;
+    transition:background .12s ease;
+  }
+  .btn:hover{background:var(--teal-dark);}
+  .btn.secondary{
+    background:transparent; color:var(--ink); border:1px solid var(--line);
+  }
+  .btn.secondary:hover{background:var(--line-soft);}
+  .btn.danger{background:var(--red);}
+  .btn.danger:hover{background:#8f342e;}
+  .btn:focus-visible, button:focus-visible, .nav button:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+
+  /* ---------- Stat strip ---------- */
+  .stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px;}
+  .stat{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-top:3px solid var(--teal);
+    border-radius:4px;
+    padding:14px 16px;
+  }
+  .stat.amber{border-top-color:var(--amber);}
+  .stat.slate{border-top-color:var(--slate);}
+  .stat.red{border-top-color:var(--red);}
+  .stat-label{font-size:12px; color:var(--ink-soft); margin-bottom:6px;}
+  .stat-value{font-family:"Lora", serif; font-size:28px; font-weight:600;}
+  .stat-sub{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+
+  /* ---------- Panels / grid ---------- */
+  .grid-2{display:grid; grid-template-columns:1.3fr 1fr; gap:20px; align-items:start;}
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .panel-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 18px; border-bottom:1px solid var(--line-soft);
+  }
+  .panel-head h2{font-size:16px;}
+  .panel-body{padding:6px 0;}
+  .panel-body.pad{padding:16px 18px;}
+
+  .list-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:11px 18px; border-bottom:1px solid var(--line-soft);
+    gap:12px;
+  }
+  .list-row:last-child{border-bottom:none;}
+  .list-row .who{font-weight:500;}
+  .list-row .meta{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+
+  .pill{
+    display:inline-block; font-size:11px; padding:3px 9px; border-radius:20px;
+    font-weight:500;
+  }
+  .pill.confirmed{background:var(--teal-tint); color:var(--teal-dark);}
+  .pill.pending{background:var(--amber-tint); color:var(--amber);}
+  .pill.cancelled{background:var(--red-tint); color:var(--red);}
+  .pill.done{background:var(--green-tint); color:var(--green);}
+  .pill.paid{background:var(--green-tint); color:var(--green);}
+  .pill.unpaid{background:var(--amber-tint); color:var(--amber);}
+  .pill.critical{background:var(--red-tint); color:var(--red);}
+  .pill.stable{background:var(--green-tint); color:var(--green);}
+
+  /* ---------- Ward occupancy bars ---------- */
+  .ward-bar-row{padding:12px 18px; border-bottom:1px solid var(--line-soft);}
+  .ward-bar-row:last-child{border-bottom:none;}
+  .ward-bar-top{display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;}
+  .ward-bar-top .count{font-family:"IBM Plex Mono", monospace; color:var(--ink-soft); font-size:12px;}
+  .ward-track{height:7px; background:var(--line-soft); border-radius:4px; overflow:hidden;}
+  .ward-fill{height:100%; background:var(--teal); border-radius:4px;}
+
+  /* ---------- Tables ---------- */
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th{
+    text-align:left; font-size:12px; color:var(--ink-soft); font-weight:500;
+    padding:10px 14px; border-bottom:1px solid var(--line);
+  }
+  td{padding:11px 14px; border-bottom:1px solid var(--line-soft); vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--line-soft);}
+  .id-cell{font-family:"IBM Plex Mono", monospace; font-size:12px; color:var(--ink-soft);}
+  .row-actions{display:flex; gap:8px;}
+  .icon-btn{
+    background:none; border:none; cursor:pointer; color:var(--ink-soft);
+    padding:4px; border-radius:4px; display:inline-flex;
+  }
+  .icon-btn:hover{background:var(--line-soft); color:var(--ink);}
+
+  .table-toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:12px; flex-wrap:wrap;}
+
+  .empty-state{
+    text-align:center; padding:50px 20px; color:var(--ink-soft);
+  }
+  .empty-state h3{color:var(--ink); margin-bottom:6px; font-size:16px;}
+  .empty-state p{margin:0 0 16px 0; font-size:13px;}
+
+  /* ---------- Doctor cards ---------- */
+  .doc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px;}
+  .doc-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:16px;
+  }
+  .doc-top{display:flex; gap:12px; align-items:center; margin-bottom:10px;}
+  .doc-avatar{
+    width:42px; height:42px; border-radius:50%; background:var(--teal-tint); color:var(--teal-dark);
+    display:flex; align-items:center; justify-content:center; font-weight:600; font-family:"Lora",serif;
+    flex-shrink:0; font-size:15px;
+  }
+  .doc-name{font-weight:500; font-size:14.5px;}
+  .doc-spec{font-size:12px; color:var(--ink-soft);}
+  .doc-meta{font-size:12.5px; color:var(--ink-soft); display:flex; flex-direction:column; gap:4px; border-top:1px solid var(--line-soft); padding-top:10px;}
+  .doc-actions{display:flex; justify-content:flex-end; gap:6px; margin-top:10px;}
+
+  /* ---------- Bed / ward grid ---------- */
+  .ward-block{margin-bottom:26px;}
+  .ward-block-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;}
+  .ward-block-head h3{font-size:15px;}
+  .ward-block-head .count{font-size:12.5px; color:var(--ink-soft); font-family:"IBM Plex Mono", monospace;}
+  .bed-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px;}
+  .bed{
+    border:1px solid var(--line); border-radius:6px; padding:10px; cursor:pointer;
+    background:var(--panel); transition:transform .08s ease;
+  }
+  .bed:hover{transform:translateY(-1px); box-shadow:var(--shadow);}
+  .bed .bed-id{font-family:"IBM Plex Mono", monospace; font-size:11px; color:var(--ink-soft); margin-bottom:6px;}
+  .bed .bed-status{font-size:12.5px; font-weight:500;}
+  .bed .bed-patient{font-size:11.5px; color:var(--ink-soft); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .bed.vacant{border-top:3px solid var(--green);}
+  .bed.occupied{border-top:3px solid var(--teal);}
+  .bed.cleaning{border-top:3px solid var(--amber);}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(15,20,18,0.45);
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:40px 20px; overflow-y:auto; z-index:50;
+  }
+  .modal{
+    background:var(--panel); border-radius:8px; width:100%; max-width:520px;
+    border:1px solid var(--line); box-shadow:0 8px 30px rgba(0,0,0,0.15);
+  }
+  .modal-head{padding:18px 22px; border-bottom:1px solid var(--line-soft); display:flex; justify-content:space-between; align-items:center;}
+  .modal-head h2{font-size:17px;}
+  .modal-body{padding:20px 22px;}
+  .modal-foot{padding:16px 22px; border-top:1px solid var(--line-soft); display:flex; justify-content:flex-end; gap:10px;}
+  .field{margin-bottom:14px; display:flex; flex-direction:column; gap:5px;}
+  .field label{font-size:12.5px; color:var(--ink-soft);}
+  .field input, .field select, .field textarea{width:100%;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .close-x{background:none; border:none; cursor:pointer; color:var(--ink-soft); padding:2px;}
+  .close-x:hover{color:var(--ink);}
+
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+    background:var(--teal-dark); color:#fff; padding:10px 18px; border-radius:6px;
+    font-size:13.5px; box-shadow:0 4px 16px rgba(0,0,0,0.2); z-index:100;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px);}
+
+  .invoice-lines{border:1px solid var(--line); border-radius:6px; overflow:hidden; margin-bottom:10px;}
+  .invoice-line{display:grid; grid-template-columns:1fr 90px 90px 28px; gap:8px; padding:8px 10px; border-bottom:1px solid var(--line-soft); align-items:center;}
+  .invoice-line:last-child{border-bottom:none;}
+  .invoice-line input{width:100%;}
+
+  ::-webkit-scrollbar{width:10px; height:10px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
+
+  @media (max-width: 900px){
+    .sidebar{position:relative; width:100%; height:auto; flex-direction:row; flex-wrap:wrap; padding:14px;}
+    .brand{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+    .nav{flex-direction:row; flex-wrap:wrap;}
+    .sidebar-foot{display:none;}
+    #app{flex-direction:column;}
+    .main{margin-left:0; padding:20px;}
+    .stat-row{grid-template-columns:repeat(2,1fr);}
+    .grid-2{grid-template-columns:1fr;}
+    .field-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ Storage helpers ============ */
+  const LS_KEY = "meridian_hms_v1";
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){ console.warn("storage read failed", e); }
+    return seedData();
+  }
+  function saveData(){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+    catch(e){ console.warn("storage write failed", e); }
+  }
+
+  function uid(prefix){
+    return prefix + "-" + Math.random().toString(36).slice(2,7).toUpperCase();
+  }
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function fmtDate(iso){
+    const d = new Date(iso+"T00:00:00");
+    return d.toLocaleDateString(undefined,{day:"2-digit", month:"short", year:"numeric"});
+  }
+  function fmtMoney(n){ return "$" + Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function initials(name){
+    return name.split(" ").filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join("");
+  }
+  function escapeHtml(s){
+    return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  /* ============ Seed data ============ */
+  function seedData(){
+    const doctors = [
+      {id:"DR-001", name:"Dr. Amara Solis", specialty:"Cardiology", days:"Mon, Wed, Fri", phone:"555-0142"},
+      {id:"DR-002", name:"Dr. Kenji Watanabe", specialty:"Orthopedics", days:"Tue, Thu", phone:"555-0198"},
+      {id:"DR-003", name:"Dr. Priya Nandakumar", specialty:"Pediatrics", days:"Mon–Fri", phone:"555-0176"},
+      {id:"DR-004", name:"Dr. Elias Fontaine", specialty:"General Medicine", days:"Mon, Tue, Thu, Fri", phone:"555-0111"},
+      {id:"DR-005", name:"Dr. Grace Obi", specialty:"Neurology", days:"Wed, Fri", phone:"555-0134"}
+    ];
+    const patients = [
+      {id:"PT-1001", name:"Miriam Castellano", age:54, gender:"Female", phone:"555-2201", blood:"O+", condition:"stable"},
+      {id:"PT-1002", name:"Thomas Reyes", age:67, gender:"Male", phone:"555-2244", blood:"A-", condition:"critical"},
+      {id:"PT-1003", name:"Aisha Bello", age:29, gender:"Female", phone:"555-2287", blood:"B+", condition:"stable"},
+      {id:"PT-1004", name:"Noah Kim", age:8, gender:"Male", phone:"555-2312", blood:"AB+", condition:"stable"},
+      {id:"PT-1005", name:"Ingrid Sorensen", age:73, gender:"Female", phone:"555-2356", blood:"O-", condition:"stable"}
+    ];
+    const today = todayISO();
+    const appointments = [
+      {id:uid("AP"), patientId:"PT-1001", doctorId:"DR-001", date:today, time:"09:00", reason:"Follow-up: hypertension", status:"confirmed"},
+      {id:uid("AP"), patientId:"PT-1003", doctorId:"DR-004", date:today, time:"10:30", reason:"Annual physical", status:"confirmed"},
+      {id:uid("AP"), patientId:"PT-1004", doctorId:"DR-003", date:today, time:"13:00", reason:"Vaccination", status:"pending"},
+      {id:uid("AP"), patientId:"PT-1005", doctorId:"DR-005", date:today, time:"15:15", reason:"Memory assessment", status:"confirmed"}
+    ];
+    const wards = ["General Ward", "ICU", "Pediatrics", "Maternity"];
+    const beds = [];
+    wards.forEach((ward, wi)=>{
+      const count = ward==="ICU" ? 6 : 10;
+      for(let i=1;i<=count;i++){
+        beds.push({id: ward.slice(0,3).toUpperCase()+"-"+String(i).padStart(2,"0"), ward, status:"vacant", patientId:null, admitted:null});
+      }
+    });
+    // occupy a few
+    beds[0].status="occupied"; beds[0].patientId="PT-1002"; beds[0].admitted=today;
+    beds.find(b=>b.ward==="ICU").status="occupied";
+    const icuBed = beds.find(b=>b.ward==="ICU");
+    icuBed.status="occupied"; icuBed.patientId="PT-1002"; icuBed.admitted=today;
+    beds[2].status="cleaning";
+    beds[15] && (beds[15].status="occupied", beds[15].patientId="PT-1005", beds[15].admitted=today);
+
+    const invoices = [
+      {id:uid("INV"), patientId:"PT-1001", date:today, items:[{desc:"Consultation", qty:1, price:80},{desc:"Blood panel", qty:1, price:45}], status:"paid"},
+      {id:uid("INV"), patientId:"PT-1002", date:today, items:[{desc:"ICU daily rate", qty:2, price:650},{desc:"Medication", qty:1, price:120}], status:"unpaid"}
+    ];
+
+    return {patients, doctors, appointments, beds, invoices, admissions:[]};
+  }
+
+  let state = loadData();
+  let view = "dashboard";
+  let patientSearch = "";
+  let appointmentFilter = "all";
+
+  const root = document.getElementById("app");
+
+  /* ============ Toast ============ */
+  let toastTimer;
+  function showToast(msg){
+    let el = document.getElementById("toast");
+    if(!el){
+      el = document.createElement("div");
+      el.id = "toast"; el.className = "toast";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove("show"), 2200);
+  }
+
+  /* ============ Icons (inline svg, stroke=currentColor) ============ */
+  const ICONS = {
+    dashboard: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>',
+    patients: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="18" cy="8" r="2.4"/><path d="M15.5 14.2c2.7.4 4.5 2.7 4.5 5.8"/></svg>',
+    doctors: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3v4a3 3 0 0 0 6 0V3"/><path d="M6 3v5a6 6 0 0 0 12 0V3"/><circle cx="18" cy="17" r="3.5"/><path d="M18 15.5v3M16.5 17h3"/></svg>',
+    appointments: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/><path d="M8.5 14l2 2 4-4"/></svg>',
+    beds: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7"/><path d="M3 15h18"/><path d="M6 11V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1"/><path d="M3 18v2M21 18v2"/></svg>',
+    billing: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>',
+    plus: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+    trash: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7M6 7l1 13.5A1.5 1.5 0 0 0 8.5 22h7a1.5 1.5 0 0 0 1.5-1.5L18 7"/></svg>',
+    edit: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
+    x: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+    logo: '<svg width="26" height="26" viewBox="0 0 32 32" fill="none"><rect x="2" y="2" width="28" height="28" rx="7" fill="#F1EEE6"/><path d="M16 8v16M8 16h16" stroke="#0B3A37" stroke-width="3.4" stroke-linecap="round"/></svg>'
+  };
+
+  const NAV = [
+    {key:"dashboard", label:"Dashboard", icon:ICONS.dashboard},
+    {key:"patients", label:"Patients", icon:ICONS.patients},
+    {key:"doctors", label:"Doctors", icon:ICONS.doctors},
+    {key:"appointments", label:"Appointments", icon:ICONS.appointments},
+    {key:"beds", label:"Admissions & beds", icon:ICONS.beds},
+    {key:"billing", label:"Billing", icon:ICONS.billing}
+  ];
+
+  /* ============ Lookup helpers ============ */
+  function patientById(id){ return state.patients.find(p=>p.id===id); }
+  function doctorById(id){ return state.doctors.find(d=>d.id===id); }
+
+  /* ============ Render root shell ============ */
+  function render(){
+    root.innerHTML = `
+      <div class="sidebar">
+        <div class="brand">
+          ${ICONS.logo}
+          <div>
+            <div class="brand-name">Meridian</div>
+            <div class="brand-sub">General Hospital</div>
+          </div>
+        </div>
+        <ul class="nav" style="list-style:none;padding:0;margin:0;">
+          ${NAV.map(n=>`<li><button data-nav="${n.key}" class="${view===n.key?'active':''}">${n.icon}<span>${n.label}</span></button></li>`).join("")}
+        </ul>
+        <div class="sidebar-foot">
+          <div class="mono">${todayISO()}</div>
+          <button id="resetBtn">Reset demo data</button>
+        </div>
+      </div>
+      <div class="main" id="main"></div>
+    `;
+    root.querySelectorAll("[data-nav]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ view = btn.getAttribute("data-nav"); render(); });
+    });
+    document.getElementById("resetBtn").addEventListener("click", ()=>{
+      if(confirm("Reset all demo data? This clears everything you've added.")){
+        state = seedData(); saveData(); render(); showToast("Demo data reset");
+      }
+    });
+    renderView();
+  }
+
+  function renderView(){
+    const main = document.getElementById("main");
+    if(view==="dashboard") main.innerHTML = viewDashboard();
+    else if(view==="patients") main.innerHTML = viewPatients();
+    else if(view==="doctors") main.innerHTML = viewDoctors();
+    else if(view==="appointments") main.innerHTML = viewAppointments();
+    else if(view==="beds") main.innerHTML = viewBeds();
+    else if(view==="billing") main.innerHTML = viewBilling();
+    attachViewHandlers();
+  }
+
+  /* ============ Dashboard ============ */
+  function viewDashboard(){
+    const today = todayISO();
+    const todaysAppts = state.appointments.filter(a=>a.date===today).sort((a,b)=>a.time.localeCompare(b.time));
+    const totalBeds = state.beds.length;
+    const vacantBeds = state.beds.filter(b=>b.status==="vacant").length;
+    const revenueToday = state.invoices.filter(i=>i.date===today).reduce((s,i)=>s + i.items.reduce((a,l)=>a+l.qty*l.price,0), 0);
+    const wardGroups = {};
+    state.beds.forEach(b=>{ (wardGroups[b.ward] = wardGroups[b.ward]||[]).push(b); });
+
+    return `
+      <div class="topbar">
+        <div><h1>Dashboard</h1><div class="date">${fmtDate(today)}</div></div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">Total patients</div><div class="stat-value">${state.patients.length}</div><div class="stat-sub">Across all wards</div></div>
+        <div class="stat slate"><div class="stat-label">Appointments today</div><div class="stat-value">${todaysAppts.length}</div><div class="stat-sub">${todaysAppts.filter(a=>a.status==='confirmed').length} confirmed</div></div>
+        <div class="stat amber"><div class="stat-label">Beds available</div><div class="stat-value">${vacantBeds}/${totalBeds}</div><div class="stat-sub">${totalBeds-vacantBeds} occupied or in service</div></div>
+        <div class="stat red"><div class="stat-label">Billed today</div><div class="stat-value">${fmtMoney(revenueToday)}</div><div class="stat-sub">${state.invoices.filter(i=>i.date===today).length} invoices</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h2>Today's appointments</h2></div>
+          <div class="panel-body">
+            ${todaysAppts.length ? todaysAppts.map(a=>{
+              const p = patientById(a.patientId), d = doctorById(a.doctorId);
+              return `<div class="list-row">
+                <div>
+                  <div class="who">${escapeHtml(p?p.name:"Unknown")}</div>
+                  <div class="meta">${a.time} &middot; ${escapeHtml(d?d.name:"Unassigned")} &middot; ${escapeHtml(a.reason)}</div>
+                </div>
+                <span class="pill ${a.status}">${a.status}</span>
+              </div>`;
+            }).join("") : `<div class="empty-state"><h3>Nothing scheduled</h3><p>No appointments booked for today.</p></div>`}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Ward occupancy</h2></div>
+          <div class="panel-body">
+            ${Object.keys(wardGroups).map(w=>{
+              const beds = wardGroups[w];
+              const occ = beds.filter(b=>b.status!=="vacant").length;
+              const pct = Math.round((occ/beds.length)*100);
+              return `<div class="ward-bar-row">
+                <div class="ward-bar-top"><span>${escapeHtml(w)}</span><span class="count">${occ}/${beds.length}</span></div>
+                <div class="ward-track"><div class="ward-fill" style="width:${pct}%"></div></div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ============ Patients ============ */
+  function viewPatients(){
+    const filtered = state.patients.filter(p=>{
+      const q = patientSearch.toLowerCase();
+      return !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q);
+    });
+    return `
+      <div class="topbar">
+        <div><h1>Patients</h1><div class="date">${state.patients.length} on record</div></div>
+        <div class="topbar-actions">
+          <button class="btn" id="addPatientBtn">${ICONS.plus} New patient</button>
+        </div>
+      </div>
+      <div class="table-toolbar">
+        <input class="search-input" id="patientSearchInput" placeholder="Search by name or ID" value="${escapeHtml(patientSearch)}">
+      </div>
+      <div class="panel">
+        ${filtered.length ? `
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Gender</th><th>Blood</th><th>Phone</th><th>Condition</th><th></th></tr></thead>
+          <tbody>
+            ${filtered.map(p=>`
+              <tr>
+                <td class="id-cell">${p.id}</td>
+                <td>${escapeHtml(p.name)}</td>
+                <td>${p.age}</td>
+                <td>${escapeHtml(p.gender)}</td>
+                <td class="mono">${escapeHtml(p.blood)}</td>
+                <td>${escapeHtml(p.phone)}</td>
+                <td><span class="pill ${p.condition==='critical'?'critical':'stable'}">${p.condition}</span></td>
+                <td><div class="row-actions">
+                  <button class="icon-btn" data-del-patient="${p.id}" title="Remove">${ICONS.trash}</button>
+                </div></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>` : `<div class="empty-state"><h3>No patients found</h3><p>Try a different search, or add a new patient.</p></div>`}
+      </div>
+    `;
+  }
+
+  /* ============ Doctors ============ */
+  function viewDoctors(){
+    return `
+      <div class="topbar">
+        <div><h1>Doctors</h1><div class="date">${state.doctors.length} on staff</div></div>
+        <div class="topbar-actions">
+          <button class="btn" id="addDoctorBtn">${ICONS.plus} New doctor</button>
+        </div>
+      </div>
+      <div class="doc-grid">
+        ${state.doctors.map(d=>`
+          <div class="doc-card">
+            <div class="doc-top">
+              <div class="doc-avatar">${initials(d.name)}</div>
+              <div>
+                <div class="doc-name">${escapeHtml(d.name)}</div>
+                <div class="doc-spec">${escapeHtml(d.specialty)}</div>
+              </div>
+            </div>
+            <div class="doc-meta">
+              <span>Available: ${escapeHtml(d.days)}</span>
+              <span>${escapeHtml(d.phone)}</span>
+            </div>
+            <div class="doc-actions">
+              <button class="icon-btn" data-del-doctor="${d.id}" title="Remove">${ICONS.trash}</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  /* ============ Appointments ============ */
+  function viewAppointments(){
+    let list = state.appointments.slice().sort((a,b)=> (a.date+a.time).localeCompare(b.date+b.time));
+    if(appointmentFilter!=="all") list = list.filter(a=>a.status===appointmentFilter);
+    return `
+      <div class="topbar">
+        <div><h1>Appointments</h1><div class="date">${state.appointments.length} total</div></div>
+        <div class="topbar-actions">
+          <select id="apptFilter">
+            <option value="all" ${appointmentFilter==='all'?'selected':''}>All statuses</option>
+            <option value="confirmed" ${appointmentFilter==='confirmed'?'selected':''}>Confirmed</option>
+            <option value="pending" ${appointmentFilter==='pending'?'selected':''}>Pending</option>
+            <option value="done" ${appointmentFilter==='done'?'selected':''}>Done</option>
+            <option value="cancelled" ${appointmentFilter==='cancelled'?'selected':''}>Cancelled</option>
+          </select>
+          <button class="btn" id="addApptBtn">${ICONS.plus} Book appointment</button>
+        </div>
+      </div>
+      <div class="panel">
+        ${list.length ? `
+        <table>
+          <thead><tr><th>Date</th><th>Time</th><th>Patient</th><th>Doctor</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${list.map(a=>{
+              const p = patientById(a.patientId), d = doctorById(a.doctorId);
+              return `<tr>
+                <td class="mono">${a.date}</td>
+                <td class="mono">${a.time}</td>
+                <td>${escapeHtml(p?p.name:"—")}</td>
+                <td>${escapeHtml(d?d.name:"—")}</td>
+                <td>${escapeHtml(a.reason)}</td>
+                <td>
+                  <select data-status-appt="${a.id}" style="font-size:12px; padding:4px 6px;">
+                    <option value="confirmed" ${a.status==='confirmed'?'selected':''}>Confirmed</option>
+                    <option value="pending" ${a.status==='pending'?'selected':''}>Pending</option>
+                    <option value="done" ${a.status==='done'?'selected':''}>Done</option>
+                    <option value="cancelled" ${a.status==='cancelled'?'selected':''}>Cancelled</option>
+                  </select>
+                </td>
+                <td><button class="icon-btn" data-del-appt="${a.id}" title="Remove">${ICONS.trash}</button></td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>` : `<div class="empty-state"><h3>No appointments match</h3><p>Adjust the filter or book a new appointment.</p></div>`}
+      </div>
+    `;
+  }
+
+  /* ============ Beds ============ */
+  function viewBeds(){
+    const wardGroups = {};
+    state.beds.forEach(b=>{ (wardGroups[b.ward] = wardGroups[b.ward]||[]).push(b); });
+    return `
+      <div class="topbar">
+        <div><h1>Admissions &amp; beds</h1><div class="date">${state.beds.filter(b=>b.status==='occupied').length} of ${state.beds.length} beds occupied</div></div>
+      </div>
+      ${Object.keys(wardGroups).map(w=>{
+        const beds = wardGroups[w];
+        return `<div class="ward-block">
+          <div class="ward-block-head"><h3>${escapeHtml(w)}</h3><span class="count">${beds.filter(b=>b.status==='occupied').length}/${beds.length} occupied</span></div>
+          <div class="bed-grid">
+            ${beds.map(b=>{
+              const p = b.patientId ? patientById(b.patientId) : null;
+              return `<div class="bed ${b.status}" data-bed="${b.id}">
+                <div class="bed-id">${b.id}</div>
+                <div class="bed-status">${b.status[0].toUpperCase()+b.status.slice(1)}</div>
+                ${p ? `<div class="bed-patient">${escapeHtml(p.name)}</div>` : ""}
+              </div>`;
+            }).join("")}
+          </div>
+        </div>`;
+      }).join("")}
+    `;
+  }
+
+  /* ============ Billing ============ */
+  function viewBilling(){
+    const list = state.invoices.slice().sort((a,b)=> b.date.localeCompare(a.date));
+    return `
+      <div class="topbar">
+        <div><h1>Billing</h1><div class="date">${state.invoices.length} invoices</div></div>
+        <div class="topbar-actions">
+          <button class="btn" id="addInvoiceBtn">${ICONS.plus} New invoice</button>
+        </div>
+      </div>
+      <div class="panel">
+        ${list.length ? `
+        <table>
+          <thead><tr><th>Invoice</th><th>Date</th><th>Patient</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${list.map(inv=>{
+              const p = patientById(inv.patientId);
+              const total = inv.items.reduce((s,l)=>s+l.qty*l.price,0);
+              return `<tr>
+                <td class="id-cell">${inv.id}</td>
+                <td class="mono">${inv.date}</td>
+                <td>${escapeHtml(p?p.name:"—")}</td>
+                <td class="mono">${fmtMoney(total)}</td>
+                <td>
+                  <select data-status-invoice="${inv.id}" style="font-size:12px; padding:4px 6px;">
+                    <option value="unpaid" ${inv.status==='unpaid'?'selected':''}>Unpaid</option>
+                    <option value="paid" ${inv.status==='paid'?'selected':''}>Paid</option>
+                  </select>
+                </td>
+                <td><button class="icon-btn" data-del-invoice="${inv.id}" title="Remove">${ICONS.trash}</button></td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>` : `<div class="empty-state"><h3>No invoices yet</h3><p>Create an invoice for a patient's visit or stay.</p></div>`}
+      </div>
+    `;
+  }
+
+  /* ============ Modal helper ============ */
+  function openModal(html){
+    const wrap = document.createElement("div");
+    wrap.className = "modal-backdrop";
+    wrap.id = "modalBackdrop";
+    wrap.innerHTML = `<div class="modal">${html}</div>`;
+    document.body.appendChild(wrap);
+    wrap.addEventListener("click", (e)=>{ if(e.target===wrap) closeModal(); });
+    document.addEventListener("keydown", escCloseOnce);
+    return wrap;
+  }
+  function escCloseOnce(e){ if(e.key==="Escape"){ closeModal(); } }
+  function closeModal(){
+    const el = document.getElementById("modalBackdrop");
+    if(el) el.remove();
+    document.removeEventListener("keydown", escCloseOnce);
+  }
+
+  /* ============ Add Patient modal ============ */
+  function openAddPatientModal(){
+    const html = `
+      <div class="modal-head"><h2>New patient</h2><button class="close-x" id="mClose">${ICONS.x}</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Full name</label><input id="fName" placeholder="e.g. Jordan Ellis"></div>
+        <div class="field-row">
+          <div class="field"><label>Age</label><input id="fAge" type="number" min="0" max="130"></div>
+          <div class="field"><label>Gender</label><select id="fGender"><option>Female</option><option>Male</option><option>Other</option></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Blood group</label><select id="fBlood">${["O+","O-","A+","A-","B+","B-","AB+","AB-"].map(b=>`<option>${b}</option>`).join("")}</select></div>
+          <div class="field"><label>Phone</label><input id="fPhone" placeholder="555-0100"></div>
+        </div>
+        <div class="field"><label>Condition</label><select id="fCondition"><option value="stable">Stable</option><option value="critical">Critical</option></select></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn secondary" id="mCancel">Cancel</button>
+        <button class="btn" id="mSave">Save patient</button>
+      </div>
+    `;
+    const modal = openModal(html);
+    modal.querySelector("#mClose").addEventListener("click", closeModal);
+    modal.querySelector("#mCancel").addEventListener("click", closeModal);
+    modal.querySelector("#mSave").addEventListener("click", ()=>{
+      const name = modal.querySelector("#fName").value.trim();
+      if(!name){ showToast("Enter a patient name"); return; }
+      const nextNum = 1000 + state.patients.length + 1;
+      state.patients.push({
+        id: "PT-" + nextNum,
+        name,
+        age: Number(modal.querySelector("#fAge").value) || 0,
+        gender: modal.querySelector("#fGender").value,
+        blood: modal.querySelector("#fBlood").value,
+        phone: modal.querySelector("#fPhone").value.trim() || "—",
+        condition: modal.querySelector("#fCondition").value
+      });
+      saveData(); closeModal(); renderView(); showToast("Patient added");
+    });
+  }
+
+  /* ============ Add Doctor modal ============ */
+  function openAddDoctorModal(){
+    const html = `
+      <div class="modal-head"><h2>New doctor</h2><button class="close-x" id="mClose">${ICONS.x}</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Full name</label><input id="fName" placeholder="e.g. Dr. Sam Okafor"></div>
+        <div class="field"><label>Specialty</label><input id="fSpec" placeholder="e.g. Dermatology"></div>
+        <div class="field-row">
+          <div class="field"><label>Available days</label><input id="fDays" placeholder="e.g. Mon, Wed, Fri"></div>
+          <div class="field"><label>Phone</label><input id="fPhone" placeholder="555-0100"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn secondary" id="mCancel">Cancel</button>
+        <button class="btn" id="mSave">Save doctor</button>
+      </div>
+    `;
+    const modal = openModal(html);
+    modal.querySelector("#mClose").addEventListener("click", closeModal);
+    modal.querySelector("#mCancel").addEventListener("click", closeModal);
+    modal.querySelector("#mSave").addEventListener("click", ()=>{
+      const name = modal.querySelector("#fName").value.trim();
+      if(!name){ showToast("Enter a doctor name"); return; }
+      state.doctors.push({
+        id: uid("DR"),
+        name,
+        specialty: modal.querySelector("#fSpec").value.trim() || "General Medicine",
+        days: modal.querySelector("#fDays").value.trim() || "—",
+        phone: modal.querySelector("#fPhone").value.trim() || "—"
+      });
+      saveData(); closeModal(); renderView(); showToast("Doctor added");
+    });
+  }
+
+  /* ============ Book Appointment modal ============ */
+  function openAddApptModal(){
+    if(state.patients.length===0 || state.doctors.length===0){
+      showToast("Add a patient and doctor first"); return;
+    }
+    const html = `
+      <div class="modal-head"><h2>Book appointment</h2><button class="close-x" id="mClose">${ICONS.x}</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Patient</label>
+          <select id="fPatient">${state.patients.map(p=>`<option value="${p.id}">${escapeHtml(p.name)} (${p.id})</option>`).join("")}</select>
+        </div>
+        <div class="field"><label>Doctor</label>
+          <select id="fDoctor">${state.doctors.map(d=>`<option value="${d.id}">${escapeHtml(d.name)} — ${escapeHtml(d.specialty)}</option>`).join("")}</select>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Date</label><input id="fDate" type="date" value="${todayISO()}"></div>
+          <div class="field"><label>Time</label><input id="fTime" type="time" value="09:00"></div>
+        </div>
+        <div class="field"><label>Reason for visit</label><input id="fReason" placeholder="e.g. Follow-up consultation"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn secondary" id="mCancel">Cancel</button>
+        <button class="btn" id="mSave">Book</button>
+      </div>
+    `;
+    const modal = openModal(html);
+    modal.querySelector("#mClose").addEventListener("click", closeModal);
+    modal.querySelector("#mCancel").addEventListener("click", closeModal);
+    modal.querySelector("#mSave").addEventListener("click", ()=>{
+      state.appointments.push({
+        id: uid("AP"),
+        patientId: modal.querySelector("#fPatient").value,
+        doctorId: modal.querySelector("#fDoctor").value,
+        date: modal.querySelector("#fDate").value || todayISO(),
+        time: modal.querySelector("#fTime").value || "09:00",
+        reason: modal.querySelector("#fReason").value.trim() || "General visit",
+        status: "confirmed"
+      });
+      saveData(); closeModal(); renderView(); showToast("Appointment booked");
+    });
+  }
+
+  /* ============ Bed action modal (admit / discharge) ============ */
+  function openBedModal(bedId){
+    const bed = state.beds.find(b=>b.id===bedId);
+    if(!bed) return;
+    let bodyHtml;
+    if(bed.status==="occupied"){
+      const p = patientById(bed.patientId);
+      bodyHtml = `
+        <div class="modal-body">
+          <p style="margin:0 0 6px 0;">Occupied by <strong>${escapeHtml(p?p.name:"Unknown patient")}</strong></p>
+          <p style="margin:0; color:var(--ink-soft); font-size:13px;">Admitted ${bed.admitted ? fmtDate(bed.admitted) : "—"}</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn secondary" id="mCancel">Close</button>
+          <button class="btn" id="mDischarge">Discharge &amp; free bed</button>
+        </div>
+      `;
+    } else if(bed.status==="vacant"){
+      bodyHtml = `
+        <div class="modal-body">
+          <div class="field"><label>Admit patient</label>
+            <select id="fPatient">${state.patients.map(p=>`<option value="${p.id}">${escapeHtml(p.name)} (${p.id})</option>`).join("")}</select>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn secondary" id="mCancel">Cancel</button>
+          <button class="btn" id="mMarkCleaning">Mark for cleaning</button>
+          <button class="btn" id="mAdmit">Admit</button>
+        </div>
+      `;
+    } else {
+      bodyHtml = `
+        <div class="modal-body"><p style="margin:0;">This bed is being prepared and is not yet available.</p></div>
+        <div class="modal-foot">
+          <button class="btn secondary" id="mCancel">Close</button>
+          <button class="btn" id="mMarkVacant">Mark as vacant</button>
+        </div>
+      `;
+    }
+    const html = `<div class="modal-head"><h2>Bed ${bed.id} &middot; ${escapeHtml(bed.ward)}</h2><button class="close-x" id="mClose">${ICONS.x}</button></div>${bodyHtml}`;
+    const modal = openModal(html);
+    modal.querySelector("#mClose").addEventListener("click", closeModal);
+    modal.querySelector("#mCancel")?.addEventListener("click", closeModal);
+    modal.querySelector("#mDischarge")?.addEventListener("click", ()=>{
+      bed.status="cleaning"; bed.patientId=null; bed.admitted=null;
+      saveData(); closeModal(); renderView(); showToast("Patient discharged");
+    });
+    modal.querySelector("#mAdmit")?.addEventListener("click", ()=>{
+      const pid = modal.querySelector("#fPatient").value;
+      bed.status="occupied"; bed.patientId=pid; bed.admitted=todayISO();
+      saveData(); closeModal(); renderView(); showToast("Patient admitted");
+    });
+    modal.querySelector("#mMarkCleaning")?.addEventListener("click", ()=>{
+      bed.status="cleaning"; saveData(); closeModal(); renderView(); showToast("Bed marked for cleaning");
+    });
+    modal.querySelector("#mMarkVacant")?.addEventListener("click", ()=>{
+      bed.status="vacant"; saveData(); closeModal(); renderView(); showToast("Bed marked vacant");
+    });
+  }
+
+  /* ============ New Invoice modal ============ */
+  function openAddInvoiceModal(){
+    if(state.patients.length===0){ showToast("Add a patient first"); return; }
+    let lineCount = 1;
+    const lineHtml = (i)=>`
+      <div class="invoice-line" data-line="${i}">
+        <input placeholder="Description" data-line-desc>
+        <input type="number" min="1" value="1" data-line-qty>
+        <input type="number" min="0" step="0.01" placeholder="Price" data-line-price>
+        <button class="icon-btn" data-line-remove title="Remove line">${ICONS.x}</button>
+      </div>`;
+    const html = `
+      <div class="modal-head"><h2>New invoice</h2><button class="close-x" id="mClose">${ICONS.x}</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Patient</label>
+          <select id="fPatient">${state.patients.map(p=>`<option value="${p.id}">${escapeHtml(p.name)} (${p.id})</option>`).join("")}</select>
+        </div>
+        <label style="font-size:12.5px; color:var(--ink-soft); display:block; margin-bottom:5px;">Line items</label>
+        <div class="invoice-lines" id="linesWrap">${lineHtml(0)}</div>
+        <button class="btn secondary" id="addLineBtn" type="button" style="font-size:12.5px; padding:6px 10px;">${ICONS.plus} Add line</button>
+      </div>
+      <div class="modal-foot">
+        <button class="btn secondary" id="mCancel">Cancel</button>
+        <button class="btn" id="mSave">Create invoice</button>
+      </div>
+    `;
+    const modal = openModal(html);
+    modal.querySelector("#mClose").addEventListener("click", closeModal);
+    modal.querySelector("#mCancel").addEventListener("click", closeModal);
+    const linesWrap = modal.querySelector("#linesWrap");
+    modal.querySelector("#addLineBtn").addEventListener("click", ()=>{
+      lineCount++;
+      const div = document.createElement("div");
+      div.innerHTML = lineHtml(lineCount);
+      linesWrap.appendChild(div.firstElementChild);
+    });
+    linesWrap.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-line-remove]");
+      if(btn){
+        const lines = linesWrap.querySelectorAll(".invoice-line");
+        if(lines.length>1) btn.closest(".invoice-line").remove();
+      }
+    });
+    modal.querySelector("#mSave").addEventListener("click", ()=>{
+      const items = Array.from(linesWrap.querySelectorAll(".invoice-line")).map(row=>({
+        desc: row.querySelector("[data-line-desc]").value.trim() || "Service",
+        qty: Number(row.querySelector("[data-line-qty]").value) || 1,
+        price: Number(row.querySelector("[data-line-price]").value) || 0
+      })).filter(l=>l.price>0);
+      if(items.length===0){ showToast("Add at least one priced line item"); return; }
+      state.invoices.push({
+        id: uid("INV"),
+        patientId: modal.querySelector("#fPatient").value,
+        date: todayISO(),
+        items,
+        status: "unpaid"
+      });
+      saveData(); closeModal(); renderView(); showToast("Invoice created");
+    });
+  }
+
+  /* ============ Event wiring per view ============ */
+  function attachViewHandlers(){
+    const main = document.getElementById("main");
+
+    // Patients
+    main.querySelector("#addPatientBtn")?.addEventListener("click", openAddPatientModal);
+    const psInput = main.querySelector("#patientSearchInput");
+    if(psInput){
+      const caret = psInput.selectionStart;
+      psInput.addEventListener("input", ()=>{
+        patientSearch = psInput.value;
+        renderView();
+        const fresh = document.getElementById("patientSearchInput");
+        if(fresh){ fresh.focus(); fresh.setSelectionRange(fresh.value.length, fresh.value.length); }
+      });
+    }
+    main.querySelectorAll("[data-del-patient]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-del-patient");
+        if(confirm("Remove this patient record?")){
+          state.patients = state.patients.filter(p=>p.id!==id);
+          saveData(); renderView(); showToast("Patient removed");
+        }
+      });
+    });
+
+    // Doctors
+    main.querySelector("#addDoctorBtn")?.addEventListener("click", openAddDoctorModal);
+    main.querySelectorAll("[data-del-doctor]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-del-doctor");
+        if(confirm("Remove this doctor?")){
+          state.doctors = state.doctors.filter(d=>d.id!==id);
+          saveData(); renderView(); showToast("Doctor removed");
+        }
+      });
+    });
+
+    // Appointments
+    main.querySelector("#addApptBtn")?.addEventListener("click", openAddApptModal);
+    const apptFilterSel = main.querySelector("#apptFilter");
+    apptFilterSel?.addEventListener("change", ()=>{ appointmentFilter = apptFilterSel.value; renderView(); });
+    main.querySelectorAll("[data-status-appt]").forEach(sel=>{
+      sel.addEventListener("change", ()=>{
+        const id = sel.getAttribute("data-status-appt");
+        const a = state.appointments.find(x=>x.id===id);
+        if(a){ a.status = sel.value; saveData(); showToast("Status updated"); }
+      });
+    });
+    main.querySelectorAll("[data-del-appt]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-del-appt");
+        state.appointments = state.appointments.filter(a=>a.id!==id);
+        saveData(); renderView(); showToast("Appointment removed");
+      });
+    });
+
+    // Beds
+    main.querySelectorAll("[data-bed]").forEach(el=>{
+      el.addEventListener("click", ()=> openBedModal(el.getAttribute("data-bed")));
+    });
+
+    // Billing
+    main.querySelector("#addInvoiceBtn")?.addEventListener("click", openAddInvoiceModal);
+    main.querySelectorAll("[data-status-invoice]").forEach(sel=>{
+      sel.addEventListener("change", ()=>{
+        const id = sel.getAttribute("data-status-invoice");
+        const inv = state.invoices.find(x=>x.id===id);
+        if(inv){ inv.status = sel.value; saveData(); showToast("Invoice updated"); }
+      });
+    });
+    main.querySelectorAll("[data-del-invoice]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-del-invoice");
+        state.invoices = state.invoices.filter(i=>i.id!==id);
+        saveData(); renderView(); showToast("Invoice removed");
+      });
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
